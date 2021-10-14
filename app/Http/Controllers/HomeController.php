@@ -41,7 +41,7 @@ class HomeController extends Controller
      */
     public function categoryList(): HomeCollection
     {
-        return new HomeCollection(Category::all());
+        return new HomeCollection(Category::paginate());
     }
 
 

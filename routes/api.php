@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProductController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -15,9 +16,11 @@ use App\Http\Controllers\HomeController;
 |
 */
 
-// User feature
+// Register, Login
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+
+// User information
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');;
 Route::get('/user-profile', [AuthController::class, 'userProfile'])->middleware('auth:api');
 Route::post('/change-info', [AuthController::class, 'changeInfo'])->middleware('auth:api');
@@ -27,3 +30,6 @@ Route::get('/home/hot',[HomeController::class,'hotProduct']);
 Route::get('/home/categories',[HomeController::class,'categoryList']);
 Route::get('/home/freeshipping',[HomeController::class,'freeShippingProduct']);
 Route::get('/home/gift',[HomeController::class,'giftProduct']);
+
+// Sort, Search, Products list
+Route::get('/products',[ProductController::class,'index']); // pagination, get all, sort

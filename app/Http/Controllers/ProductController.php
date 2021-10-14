@@ -4,18 +4,40 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Http\Resources\HomeCollection;
 
 class ProductController extends Controller
 {
+
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return HomeCollection
      */
-    public function index()
+    public function index(Request $request): HomeCollection
     {
-        //
+            $query = Product::query();
+
+            if($sort = $request->input('sort')) {
+                $query->orderBy('original_price',$sort);
+                return new HomeCollection($query->get());
+            }
+
+            if($discount = $request->input('discount')) {
+                $query->orderBy('discount',$discount);
+                return new HomeCollection($query->get());
+            }
+
+            if($q = $request->input('q')) {
+                $query->whereRaw("name LIKE '%".$q."%'")
+                    ->orderByRaw("description LIKE '%".$q."%'");
+                return new HomeCollection($query->get());
+            }
+
+            else {
+                return new HomeCollection(Product::paginate());
+            }
     }
+
 
     /**
      * Show the form for creating a new resource.

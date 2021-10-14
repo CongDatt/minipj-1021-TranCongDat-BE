@@ -24,6 +24,7 @@ class ProductSeeder extends Seeder
                 'category_id' => rand(0,1),
                 'original_price' => rand(1000,10000),
                 'is_gift' => rand(0,1),
+                'order_id' => rand(0,1),
                 'is_hot' => rand(0,1),
                 'discount' => rand(10,90)
             ]);
