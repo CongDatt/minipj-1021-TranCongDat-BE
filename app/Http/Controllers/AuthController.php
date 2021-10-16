@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Http\Resources\HomeCollection;
 use App\Transformers\SuccessTransformer;
 use Flugg\Responder\Facades\Responder;
 use http\Client\Response;
@@ -130,5 +131,12 @@ class AuthController extends Controller
         return responder()->success(auth()->user(),SuccessTransformer::class)->respond();
     }
 
+
+    public function productFavorite()
+    {
+        $userId = auth()->user()->id;
+        $products = User::find($userId)->products;
+        return new HomeCollection($products);
+    }
 
 }

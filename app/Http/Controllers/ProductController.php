@@ -47,14 +47,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-//        $userId = auth()->user()->id;
-        $userId = 2;
-        $products = User::find($userId)->products;
 
-//        foreach ($products as $product) {
-//            echo $product->name;
-//        }
-        return new HomeCollection($products);
     }
 
     /**

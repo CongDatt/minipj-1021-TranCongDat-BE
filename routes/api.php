@@ -25,6 +25,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');;
 Route::get('/user-profile', [AuthController::class, 'userProfile'])->middleware('auth:api');
 Route::post('/change-info', [AuthController::class, 'changeInfo'])->middleware('auth:api');
+Route::post('/user-products', [AuthController::class, 'productFavorite'])->middleware('auth:api');
 
 // Home page
 Route::get('/home/hot',[HomeController::class,'hotProduct']);
