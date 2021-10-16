@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -31,5 +32,9 @@ Route::get('/home/categories',[HomeController::class,'categoryList']);
 Route::get('/home/freeshipping',[HomeController::class,'freeShippingProduct']);
 Route::get('/home/gift',[HomeController::class,'giftProduct']);
 
-// Sort, Search, Products list
+// Sort, Search, Products lists
 Route::get('/products',[ProductController::class,'index']); // pagination, get all, sort
+
+// Product detail, Category detail
+Route::get('/products/{id}',[ProductController::class,'show']);
+Route::get('/categories/{id}',[CategoryController::class,'show']);

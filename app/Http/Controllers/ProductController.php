@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Http\Resources\HomeCollection;
+use App\Models\User;
 
 class ProductController extends Controller
 {
@@ -46,7 +47,14 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
+//        $userId = auth()->user()->id;
+        $userId = 2;
+        $products = User::find($userId)->products;
+
+//        foreach ($products as $product) {
+//            echo $product->name;
+//        }
+        return new HomeCollection($products);
     }
 
     /**
@@ -57,18 +65,18 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
     }
 
     /**
      * Display the specified resource.
      *
      * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
+     * @return HomeCollection
      */
-    public function show(Product $product)
+    public function show($id)
     {
-        //
+        $product = Product::find($id);
+        return $product;
     }
 
     /**

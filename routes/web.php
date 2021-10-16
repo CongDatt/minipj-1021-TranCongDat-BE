@@ -20,5 +20,5 @@ use App\Http\Controllers\CategoryController;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/products',[ProductController::class,'index']);
+Route::get('/products',[ProductController::class,'create']);
 
