@@ -24,8 +24,8 @@ Route::post('/register', [AuthController::class, 'register']);
 // User information
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');;
 Route::get('/user-profile', [AuthController::class, 'userProfile'])->middleware('auth:api');
+Route::get('/user-products', [AuthController::class, 'productFavorite'])->middleware('auth:api');
 Route::post('/change-info', [AuthController::class, 'changeInfo'])->middleware('auth:api');
-Route::post('/user-products', [AuthController::class, 'productFavorite'])->middleware('auth:api');
 
 // Home page
 Route::get('/home/hot',[HomeController::class,'hotProduct']);
@@ -39,3 +39,7 @@ Route::get('/products',[ProductController::class,'index']); // pagination, get a
 // Product detail, Category detail
 Route::get('/products/{id}',[ProductController::class,'show']);
 Route::get('/categories/{id}',[CategoryController::class,'show']);
+
+// Add products
+Route::post('/products',[ProductController::class,'create']);
+

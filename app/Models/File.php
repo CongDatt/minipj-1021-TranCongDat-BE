@@ -9,8 +9,7 @@ class File extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['file_name','file_status','disk','file_size','fileable_type','fileable_id'];
-    protected $guarded = [];
+    protected $fillable = ['file_name','file_path','disk','file_size','fileable_type','fileable_id'];
 
     public function fileable(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {

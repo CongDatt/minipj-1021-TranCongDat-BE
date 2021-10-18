@@ -132,7 +132,11 @@ class AuthController extends Controller
     }
 
 
-    public function productFavorite()
+    /**
+     * productFavorite(): to return a list of favorite products
+     * @return HomeCollection
+     */
+    public function productFavorite(): HomeCollection
     {
         $userId = auth()->user()->id;
         $products = User::find($userId)->products;
