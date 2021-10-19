@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Category;
 use App\Models\User;
@@ -15,12 +16,14 @@ use App\Models\Order;
 class Product extends Model
 {
     use HasFactory;
+    use SoftDeletes;
+
     protected $fillable = ['name', 'description','is_free_shipping','category_id','original_price',
         'is_gift','is_hot','discount','order_id'];
 
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Category::class,'category_id');
+        return $this->belongsTo(Category::class,'category_id','id');
     }
 
     public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -2,34 +2,37 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\HomeCollection;
 use App\Models\Category;
 use App\Models\Product;
+use App\Transformers\CategoryTransformer;
+use App\Transformers\ProductTransformer;
 use Illuminate\Http\Request;
+use Validator;
 
 class CategoryController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(): \Illuminate\Http\JsonResponse
     {
-//        $cate = Category::create([
-//            'category_name' => 'Thuốc Tây',
-//            'slug'=> 'bca'
-//        ]);
-//        return $cate;
+        $category = Category::all();
+        return responder()->success($category,CategoryTransformer::class)->respond();
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function create()
+    public function create(Request $request): \Illuminate\Http\JsonResponse
     {
-        //
+        $validator = Validator::make($request->all(),[
+            'category_name' => 'required|string',
+        ]);
+
+        $category = Category::create($request->all());
+        return responder()->success($category,CategoryTransformer::class)->respond();
     }
 
     /**
@@ -44,15 +47,13 @@ class CategoryController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show($id): \Illuminate\Http\JsonResponse
     {
-        $category = Category::find($id);
-        return $category;
+        $products = Category::find($id)->products;
+        return responder()->success($products,ProductTransformer::class)->respond();
     }
 
     /**
@@ -67,15 +68,19 @@ class CategoryController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Category $category)
+    public function update(Request $request, $id)
     {
-        //
+        $validator = Validator::make($request->all(),[
+            'category_name' => 'required|string',
+        ]);
+        $category = Category::find($id);
+        $category->slug = null;
+        $category->update($request->all());
+        return responder()->success($category,CategoryTransformer::class)->respond();
     }
 
     /**

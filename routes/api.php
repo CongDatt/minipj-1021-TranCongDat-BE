@@ -34,12 +34,25 @@ Route::get('/home/freeshipping',[HomeController::class,'freeShippingProduct']);
 Route::get('/home/gift',[HomeController::class,'giftProduct']);
 
 // Sort, Search, Products lists
-Route::get('/products',[ProductController::class,'index']); // pagination, get all, sort
+//Route::get('/products',[ProductController::class,'index']); // pagination, get all, sort
 
 // Product detail, Category detail
 Route::get('/products/{id}',[ProductController::class,'show']);
 Route::get('/categories/{id}',[CategoryController::class,'show']);
 
-// Add products
+// Admin
+// Products
 Route::post('/products',[ProductController::class,'create']);
+Route::put('/products/{id}',[ProductController::class,'update']);
 
+// Soft delete Product
+Route::get('/products',[ProductController::class,'index']);
+Route::delete('/products/{id}',[ProductController::class,'destroy']);
+Route::post('/products/trash',[ProductController::class,'trash']);
+Route::post('/products/restore/{id}',[ProductController::class,'restore']);
+Route::post('/products/destroy/{id}',[ProductController::class,'forceDelete']);
+
+// Category
+Route::get('/category',[CategoryController::class, 'index']);
+Route::post('/category',[CategoryController::class, 'create']);
+Route::post('/category/{id}',[CategoryController::class, 'update']);

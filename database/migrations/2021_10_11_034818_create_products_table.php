@@ -24,6 +24,9 @@ class CreateProductsTable extends Migration
             $table->integer('is_gift')->default(0);
             $table->integer('is_hot')->default(0);
             $table->integer('discount')->default(0);
+//            $table->foreign('category_id')->references('id')->on('categories')
+//                ->onDelete('cascade');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

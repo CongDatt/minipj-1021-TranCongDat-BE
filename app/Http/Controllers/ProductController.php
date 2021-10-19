@@ -49,9 +49,8 @@ class ProductController extends Controller
 
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function create(Request $request)
     {
@@ -88,60 +87,102 @@ class ProductController extends Controller
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-    }
+//    /**
+//     * Store a newly created resource in storage.
+//     *
+//     * @param  \Illuminate\Http\Request  $request
+//     * @return \Illuminate\Http\Response
+//     */
+//    public function store(Request $request)
+//    {
+//    }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Product  $product
-     * @return HomeCollection
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show($id): \Illuminate\Http\JsonResponse
     {
         $product = Product::find($id);
-        return $product;
+        return responder()->success($product,ProductTransformer::class)->respond();
+    }
+
+//    /**
+//     * @param Request $request
+//     * @param $id
+//     */
+//    public function edit(Request $request, $id)
+//    {
+//    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return mixed
+     */
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'string',
+            'description' => 'string',
+            'is_free_shipping' => 'numeric',
+            'category_id' => 'numeric',
+            'order_id' => 'numeric',
+            'original_price' => 'numeric',
+            'is_gift' => 'numeric',
+            'is_hot' => 'numeric',
+            'discount' => 'numeric',
+        ]);
+        $product = Product::find($id);
+        $product->fill($request->all());
+        $product->save();
+
+        if ($validator->fails()) {
+            return responder()->error('422','Unauthorized')->respond(422);
+        }
+        return responder()->success($product,ProductTransformer::class)->respond();
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
+     * @param $id
+     * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
      */
-    public function edit(Product $product)
+    public function destroy($id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
     {
-        //
+        $product = Product::findOrFail($id);
+        $product->delete();
+        return responder()->success(['message' => 'Product deleted successfully']);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Product $product)
+    public function trash(): \Illuminate\Http\JsonResponse
     {
-        //
+        $product = Product::onlyTrashed()->get();
+        return responder()->success($product,ProductTransformer::class)->respond();
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Product $product)
+    public function restore($id): \Illuminate\Http\JsonResponse
     {
-        //
+        $product = Product::withTrashed()->findOrFail($id);
+        $product->restore();
+        return responder()->success($product,ProductTransformer::class)->respond();
+    }
+
+    /**
+     * @param $id
+     * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
+     */
+    public function forceDelete($id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
+    {
+        $product = Product::withTrashed()->findOrFail($id);
+        $product->forceDelete();
+        return responder()->success(['message' => 'Product destroyed successfully']);
     }
 
 
