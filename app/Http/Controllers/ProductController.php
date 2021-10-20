@@ -20,30 +20,20 @@ class ProductController extends Controller
 
     /**
      * @param Request $request
-     * @return HomeCollection
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request): HomeCollection
+    public function index(Request $request)
     {
             $query = Product::query();
-
-            if($sort = $request->input('sort')) {
-                $query->orderBy('original_price',$sort);
-                return new HomeCollection($query->get());
-            }
-
-            if($discount = $request->input('discount')) {
-                $query->orderBy('discount',$discount);
-                return new HomeCollection($query->get());
-            }
 
             if($q = $request->input('q')) {
                 $query->whereRaw("name LIKE '%".$q."%'")
                     ->orderByRaw("description LIKE '%".$q."%'");
-                return new HomeCollection($query->get());
+                return responder()->success($query->get(),ProductTransformer::class)->respond();
             }
-
             else {
-                return new HomeCollection(Product::paginate());
+                $products = Product::paginate();
+                return responder()->success($products,ProductTransformer::class)->respond();
             }
     }
 
@@ -61,6 +51,7 @@ class ProductController extends Controller
             'category_id' => 'numeric',
             'order_id' => 'numeric',
             'original_price' => 'numeric',
+            'quantity' => 'numeric',
             'is_gift' => 'numeric',
             'is_hot' => 'numeric',
             'discount' => 'numeric',
@@ -130,6 +121,7 @@ class ProductController extends Controller
             'order_id' => 'numeric',
             'original_price' => 'numeric',
             'is_gift' => 'numeric',
+            'quantity' => 'numeric',
             'is_hot' => 'numeric',
             'discount' => 'numeric',
         ]);

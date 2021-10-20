@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\OrderController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -28,25 +29,25 @@ Route::get('/user-products', [AuthController::class, 'productFavorite'])->middle
 Route::post('/change-info', [AuthController::class, 'changeInfo'])->middleware('auth:api');
 
 // Home page
+Route::get('/home',[HomeController::class,'index']);
 Route::get('/home/hot',[HomeController::class,'hotProduct']);
 Route::get('/home/categories',[HomeController::class,'categoryList']);
 Route::get('/home/freeshipping',[HomeController::class,'freeShippingProduct']);
 Route::get('/home/gift',[HomeController::class,'giftProduct']);
 
-// Sort, Search, Products lists
-//Route::get('/products',[ProductController::class,'index']); // pagination, get all, sort
-
 // Product detail, Category detail
 Route::get('/products/{id}',[ProductController::class,'show']);
 Route::get('/categories/{id}',[CategoryController::class,'show']);
 
-// Admin
+// Order
+Route::post('/order',[OrderController::class, 'create']);
+
+//// Admin
 // Products
+Route::get('/products',[ProductController::class,'index']);
 Route::post('/products',[ProductController::class,'create']);
 Route::put('/products/{id}',[ProductController::class,'update']);
-
 // Soft delete Product
-Route::get('/products',[ProductController::class,'index']);
 Route::delete('/products/{id}',[ProductController::class,'destroy']);
 Route::post('/products/trash',[ProductController::class,'trash']);
 Route::post('/products/restore/{id}',[ProductController::class,'restore']);
@@ -55,4 +56,11 @@ Route::post('/products/destroy/{id}',[ProductController::class,'forceDelete']);
 // Category
 Route::get('/category',[CategoryController::class, 'index']);
 Route::post('/category',[CategoryController::class, 'create']);
-Route::post('/category/{id}',[CategoryController::class, 'update']);
+Route::put('/category/{id}',[CategoryController::class, 'update']);
+// Soft delete Category
+Route::delete('/category/{id}',[CategoryController::class,'destroy']);
+Route::post('/category/trash',[CategoryController::class,'trash']);
+Route::post('/category/restore/{id}',[CategoryController::class,'restore']);
+Route::post('/category/destroy/{id}',[CategoryController::class,'forceDelete']);
+
+

@@ -132,7 +132,6 @@ class AuthController extends Controller
         return responder()->success(auth()->user(),SuccessTransformer::class)->respond();
     }
 
-
     /**
      * productFavorite(): to return a list of favorite products
      * @return HomeCollection

@@ -18,7 +18,7 @@ class Product extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['name', 'description','is_free_shipping','category_id','original_price',
+    protected $fillable = ['name', 'description','is_free_shipping','quantity','category_id','original_price',
         'is_gift','is_hot','discount','order_id'];
 
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -28,7 +28,7 @@ class Product extends Model
 
     public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Order::class,'order_id');
+        return $this->belongsTo(Order::class,'order_id','id');
     }
 
     public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany

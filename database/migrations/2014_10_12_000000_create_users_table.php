@@ -22,6 +22,7 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->string('birthday')->nullable()->default('01/01/2000');
             $table->string('password');
+            $table->string('order_id')->nullable();
             $table->integer('is_admin')->nullable();
             $table->rememberToken();
             $table->timestamps();

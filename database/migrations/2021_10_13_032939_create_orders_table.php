@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 
 class CreateOrdersTable extends Migration
 {
@@ -15,11 +16,11 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->date('date_buy');
-            $table->string('title');
-            $table->integer('price');
-            $table->integer('user_id');
-            $table->string('status');
+            $table->string('date_buy')->nullable();
+            $table->string('title')->nullable();
+            $table->integer('price')->nullable();
+            $table->integer('user_id')->default(0);
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

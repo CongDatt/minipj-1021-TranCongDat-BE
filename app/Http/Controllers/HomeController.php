@@ -11,6 +11,31 @@ use App\Http\Resources\HomeCollection;
 class HomeController extends Controller
 {
     /**
+     * @param Request $request
+     * @return HomeCollection
+     */
+    public function index(Request $request): HomeCollection
+    {
+        $query = Product::query();
+        if($sort = $request->input('sort')) {
+            $query->orderBy('original_price',$sort);
+            return new HomeCollection($query->get());
+        }
+        if($discount = $request->input('discount')) {
+            $query->orderBy('discount',$discount);
+            return new HomeCollection($query->get());
+        }
+        if($q = $request->input('q')) {
+            $query->whereRaw("name LIKE '%".$q."%'")
+                  ->orderByRaw("description LIKE '%".$q."%'");
+            return new HomeCollection($query->get());
+        }
+        else {
+            return new HomeCollection(Product::paginate());
+        }
+    }
+
+    /**
      * hotProduct() return a collection of hot products
      */
     public function hotProduct(): HomeCollection

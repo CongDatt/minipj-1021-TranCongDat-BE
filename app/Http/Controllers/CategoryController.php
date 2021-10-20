@@ -84,13 +84,44 @@ class CategoryController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
+     * @param $id
+     * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
      */
-    public function destroy(Category $category)
+    public function destroy($id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
     {
-        //
+        $product = Category::findOrFail($id);
+        $product->delete();
+        return responder()->success(['message' => 'Category deleted successfully']);
+    }
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function trash(): \Illuminate\Http\JsonResponse
+    {
+        $product = Category::onlyTrashed()->get();
+        return responder()->success($product,CategoryTransformer::class)->respond();
+    }
+
+    /**
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function restore($id): \Illuminate\Http\JsonResponse
+    {
+        $product = Category::withTrashed()->findOrFail($id);
+        $product->restore();
+        return responder()->success($product,CategoryTransformer::class)->respond();
+    }
+
+    /**
+     * @param $id
+     * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
+     */
+    public function forceDelete($id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
+    {
+        $product = Category::withTrashed()->findOrFail($id);
+        $product->forceDelete();
+        return responder()->success(['message' => 'Category destroyed successfully']);
     }
 }

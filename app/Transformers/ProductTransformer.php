@@ -41,6 +41,7 @@ class ProductTransformer extends Transformer
             'is_free_shipping' => (int) $product->is_free_shipping,
             'category_id' => (int) $product->category_id,
             'order_id' => (int) $product->order_id,
+            'quantity' => (int) $product->quantity,
             'original_price' => (int) $product->original_price,
             'is_gift' => (int) $product->is_gift,
             'is_hot' => (int) $product->is_hot,

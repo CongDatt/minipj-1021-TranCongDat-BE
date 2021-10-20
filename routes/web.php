@@ -20,5 +20,5 @@ use App\Http\Controllers\CategoryController;
 Route::get('/', function () {
     return view('welcome');
 });
-//Route::get('/cate',[CategoryController::class, 'index']);
+Route::get('/order',[OrderController::class, 'index']);
 

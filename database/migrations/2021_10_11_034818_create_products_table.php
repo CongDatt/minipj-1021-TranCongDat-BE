@@ -19,13 +19,12 @@ class CreateProductsTable extends Migration
             $table->string('description');
             $table->integer('is_free_shipping')->default(0);
             $table->integer('category_id')->default(0);
+            $table->integer('quantity')->default(0);
             $table->integer('order_id')->default(0);
             $table->integer('original_price')->default(0);
             $table->integer('is_gift')->default(0);
             $table->integer('is_hot')->default(0);
             $table->integer('discount')->default(0);
-//            $table->foreign('category_id')->references('id')->on('categories')
-//                ->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });
