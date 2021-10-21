@@ -13,6 +13,7 @@ use Validator;
 class CategoryController extends Controller
 {
     /**
+     * index(): show all category
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(): \Illuminate\Http\JsonResponse
@@ -22,6 +23,7 @@ class CategoryController extends Controller
     }
 
     /**
+     * create(): creatw a new category
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -36,17 +38,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
+     * show(): show detail category
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -57,17 +49,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Category $category)
-    {
-        //
-    }
-
-    /**
+     * update(): update cate information's category
      * @param Request $request
      * @param $id
      * @return \Illuminate\Http\JsonResponse
@@ -84,6 +66,7 @@ class CategoryController extends Controller
     }
 
     /**
+     * destroy(): delete category
      * @param $id
      * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
      */
@@ -95,6 +78,7 @@ class CategoryController extends Controller
     }
 
     /**
+     * trash(): get all deleted category
      * @return \Illuminate\Http\JsonResponse
      */
     public function trash(): \Illuminate\Http\JsonResponse
@@ -104,6 +88,7 @@ class CategoryController extends Controller
     }
 
     /**
+     * restore(): restore deleted category
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -115,6 +100,7 @@ class CategoryController extends Controller
     }
 
     /**
+     * forceDelete(): destroy category without restore
      * @param $id
      * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
      */

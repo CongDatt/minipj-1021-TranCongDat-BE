@@ -11,6 +11,7 @@ use App\Http\Resources\HomeCollection;
 class HomeController extends Controller
 {
     /**
+     * index(): return a product collection
      * @param Request $request
      * @return HomeCollection
      */

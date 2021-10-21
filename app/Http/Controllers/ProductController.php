@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use App\Models\Slide;
 use App\Transformers\LoginTransformer;
@@ -19,6 +20,7 @@ class ProductController extends Controller
 {
 
     /**
+     * index(): show all product, search, sort product
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -37,58 +39,34 @@ class ProductController extends Controller
             }
     }
 
-
     /**
+     * create(): create product and up image to s3
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function create(Request $request)
+    public function create(ProductRequest $productRequest)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
-            'description' => 'string',
-            'is_free_shipping' => 'numeric',
-            'category_id' => 'numeric',
-            'order_id' => 'numeric',
-            'original_price' => 'numeric',
-            'quantity' => 'numeric',
-            'is_gift' => 'numeric',
-            'is_hot' => 'numeric',
-            'discount' => 'numeric',
-        ]);
-        $product  = Product::create($request->all());
+        $validated = $productRequest->validated();
+        $product  = Product::create($validated);
 
-        if($request->hasFile('image')) {
-            $path = $request->file('image')->store('images_dat','s3');
+        if($productRequest->hasFile('image')) {
+            $path = $productRequest->file('image')->store('images_dat','s3');
             $image = $product->files()->create([
                 'file_name' => basename($path),
                 'file_path' => Storage::disk('s3')->url($path),
                 'disk' => 's3',
-                'file_size' => $request->image->getSize(),
+                'file_size' => $productRequest->image->getSize(),
             ]);
         }
+
         foreach ($product->files as $file) {
             $product->path = $file->file_path;
         }
-
-        if ($validator->fails()) {
-            return responder()->error('422','Unauthorized')->respond(422);
-        }
-
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 
-//    /**
-//     * Store a newly created resource in storage.
-//     *
-//     * @param  \Illuminate\Http\Request  $request
-//     * @return \Illuminate\Http\Response
-//     */
-//    public function store(Request $request)
-//    {
-//    }
-
     /**
+     * show(): show product detail
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -98,46 +76,25 @@ class ProductController extends Controller
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 
-//    /**
-//     * @param Request $request
-//     * @param $id
-//     */
-//    public function edit(Request $request, $id)
-//    {
-//    }
-
     /**
+     * update(): change some information in a product
      * @param Request $request
      * @param $id
      * @return mixed
      */
-    public function update(Request $request, $id)
+    public function update(ProductRequest $productRequest, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'string',
-            'description' => 'string',
-            'is_free_shipping' => 'numeric',
-            'category_id' => 'numeric',
-            'order_id' => 'numeric',
-            'original_price' => 'numeric',
-            'is_gift' => 'numeric',
-            'quantity' => 'numeric',
-            'is_hot' => 'numeric',
-            'discount' => 'numeric',
-        ]);
+        $validated = $productRequest->validated();
         $product = Product::find($id);
-        $product->fill($request->all());
+        $product->fill($validated);
         $product->save();
-
-        if ($validator->fails()) {
-            return responder()->error('422','Unauthorized')->respond(422);
-        }
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 
     /**
+     * destroy(): delete a product
      * @param $id
-     * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
+     * @return SuccessResponseBuilder
      */
     public function destroy($id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
     {
@@ -147,6 +104,7 @@ class ProductController extends Controller
     }
 
     /**
+     * trash(): get all deleted product
      * @return \Illuminate\Http\JsonResponse
      */
     public function trash(): \Illuminate\Http\JsonResponse
@@ -156,6 +114,7 @@ class ProductController extends Controller
     }
 
     /**
+     * restore(): restore deleted category
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -167,6 +126,7 @@ class ProductController extends Controller
     }
 
     /**
+     * forceDelete(): destroy product without restore
      * @param $id
      * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
      */
