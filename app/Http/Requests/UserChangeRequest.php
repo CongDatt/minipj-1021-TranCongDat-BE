@@ -28,8 +28,8 @@ class UserChangeRequest extends FormRequest
     {
         return [
             'name' => 'required|string|between:2,100',
-            'email' => 'required|string|email|max:100',
-            'phone' => 'required|min:6',
+            'email' => 'required|string|email|unique:users|max:100',
+            'phone' => 'min:6',
             'gender'=>'string',
             'birthday'=>'string',
             'address' => 'string|min:10',

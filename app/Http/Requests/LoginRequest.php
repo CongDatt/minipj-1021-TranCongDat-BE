@@ -2,12 +2,11 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
-use Flugg\Responder\Facades\Responder;
 
-class UserRequest extends FormRequest
+class LoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,17 +26,11 @@ class UserRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|between:2,100',
-            'email' => 'required|string|email|max:100|unique:users',
+            'email' => 'required|string|email|max:100',
             'password' => 'required|string|min:6',
-            'phone' => 'required|string|min:6',
-            'is_admin' => 'numeric',
         ];
     }
 
-    /**
-     * @param Validator $validator
-     */
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(

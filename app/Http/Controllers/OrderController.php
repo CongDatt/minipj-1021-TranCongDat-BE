@@ -21,7 +21,8 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = Order::all();
+        $userId = auth()->user()->id;
+        $orders = User::find($userId)->orders;
         return responder()->success($orders,OrderTransformer::class)->respond();
     }
 
@@ -39,9 +40,11 @@ class OrderController extends Controller
             $title .= $cart['title'].",";
         }
         $title = substr($title, 0, -1);
-        $order = Order::create([
+        $User = User::find(auth()->user()->id);
+        $order = $User->orders()->create([
            'title' => $title,
-           'price' => $total
+           'price' => $total,
+            'user_id' => $userId = auth()->user()->id
         ]);
         return responder()->success($order,OrderTransformer::class)->respond();
     }

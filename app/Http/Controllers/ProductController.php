@@ -29,12 +29,15 @@ class ProductController extends Controller
             $query = Product::query();
 
             if($q = $request->input('q')) {
-                $query->whereRaw("name LIKE '%".$q."%'")
-                    ->orderByRaw("description LIKE '%".$q."%'");
-                return responder()->success($query->get(),ProductTransformer::class)->respond();
+                $products = Product::where("name","like","%".$q."%")
+                    ->orWhere("description","like","%".$q."%")->paginate(20);
+                if($products->count() == 0) {
+                    return responder()->success(['message' => 'Product not found'])->respond();
+                }
+                return responder()->success($products,ProductTransformer::class)->with('files')->respond();
             }
             else {
-                $products = Product::paginate();
+                $products = Product::paginate(20);
                 return responder()->success($products,ProductTransformer::class)->respond();
             }
     }
@@ -50,17 +53,21 @@ class ProductController extends Controller
         $product  = Product::create($validated);
 
         if($productRequest->hasFile('image')) {
-            $path = $productRequest->file('image')->store('images_dat','s3');
-            $image = $product->files()->create([
+            $path = $productRequest->file('image')->store('images_dat');
+            $image = $product->file()->create([
                 'file_name' => basename($path),
                 'file_path' => Storage::disk('s3')->url($path),
                 'disk' => 's3',
                 'file_size' => $productRequest->image->getSize(),
             ]);
         }
-
-        foreach ($product->files as $file) {
-            $product->path = $file->file_path;
+        else {
+            $image = $product->file()->create([
+                'file_name' => '',
+                'file_path' => '',
+                'disk' => 's3',
+                'file_size' => '',
+            ]);
         }
         return responder()->success($product,ProductTransformer::class)->respond();
     }
@@ -94,7 +101,7 @@ class ProductController extends Controller
     /**
      * destroy(): delete a product
      * @param $id
-     * @return SuccessResponseBuilder
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
     {
@@ -136,7 +143,4 @@ class ProductController extends Controller
         $product->forceDelete();
         return responder()->success(['message' => 'Product destroyed successfully']);
     }
-
-
-
 }

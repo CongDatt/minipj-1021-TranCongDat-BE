@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\HomeCollection;
 use App\Models\Category;
 use App\Models\Product;
@@ -18,7 +19,7 @@ class CategoryController extends Controller
      */
     public function index(): \Illuminate\Http\JsonResponse
     {
-        $category = Category::all();
+        $category = Category::paginate(20);
         return responder()->success($category,CategoryTransformer::class)->respond();
     }
 
@@ -27,13 +28,9 @@ class CategoryController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function create(Request $request): \Illuminate\Http\JsonResponse
+    public function create(CategoryRequest $categoryRequest): \Illuminate\Http\JsonResponse
     {
-        $validator = Validator::make($request->all(),[
-            'category_name' => 'required|string',
-        ]);
-
-        $category = Category::create($request->all());
+        $category = Category::create($categoryRequest->validated());
         return responder()->success($category,CategoryTransformer::class)->respond();
     }
 
@@ -42,10 +39,18 @@ class CategoryController extends Controller
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id): \Illuminate\Http\JsonResponse
+    public function show(CategoryRequest $categoryRequest,$id): \Illuminate\Http\JsonResponse
     {
-        $products = Category::find($id)->products;
-        return responder()->success($products,ProductTransformer::class)->respond();
+        $products = Category::find($id)->products();
+        if($sort = $categoryRequest->input('sort')) {
+            $products = $products->orderBy('original_price',$sort)->paginate(20);
+            return responder()->success($products,ProductTransformer::class)->respond();
+        }
+        if($sort = $categoryRequest->input('discount')) {
+            $products = $products->orderBy('discount',$sort)->paginate(20);
+            return responder()->success($products,ProductTransformer::class)->respond();
+        }
+        return responder()->success($products->paginate(20),ProductTransformer::class)->respond();
     }
 
     /**
@@ -54,14 +59,11 @@ class CategoryController extends Controller
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(CategoryRequest $categoryRequest, $id)
     {
-        $validator = Validator::make($request->all(),[
-            'category_name' => 'required|string',
-        ]);
         $category = Category::find($id);
         $category->slug = null;
-        $category->update($request->all());
+        $category->update($categoryRequest->all());
         return responder()->success($category,CategoryTransformer::class)->respond();
     }
 
@@ -83,7 +85,7 @@ class CategoryController extends Controller
      */
     public function trash(): \Illuminate\Http\JsonResponse
     {
-        $product = Category::onlyTrashed()->get();
+        $product = Category::onlyTrashed()->paginate(20);
         return responder()->success($product,CategoryTransformer::class)->respond();
     }
 

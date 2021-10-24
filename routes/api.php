@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SlideController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,11 +23,16 @@ use App\Http\Controllers\OrderController;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::middleware('auth:api')->group(function () {
 // User information
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
-Route::get('/user-profile', [AuthController::class, 'userProfile'])->middleware('auth:api');
-Route::get('/user-products', [AuthController::class, 'productFavorite'])->middleware('auth:api');
-Route::put('/change-info', [AuthController::class, 'changeInfo'])->middleware('auth:api');
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user-profile', [AuthController::class, 'userProfile']);
+    Route::get('/user-products', [AuthController::class, 'productFavorite']);
+    Route::put('/change-info', [AuthController::class, 'changeInfo']);
+// Order
+    Route::post('/order', [OrderController::class, 'create']);
+    Route::get('/order', [OrderController::class, 'index']);
+});
 
 // Home page
 Route::get('/home',[HomeController::class,'index']);
@@ -38,9 +44,8 @@ Route::get('/home/gift',[HomeController::class,'giftProduct']);
 // Product detail, Category detail
 Route::get('/products/{id}',[ProductController::class,'show']);
 Route::get('/categories/{id}',[CategoryController::class,'show']);
-
-// Order
-Route::post('/order',[OrderController::class, 'create'])->middleware('auth:api');;
+Route::get('/slides/{id}',[SlideController::class,'show']);
+Route::get('/slides',[SlideController::class,'index']);
 
 Route::middleware(['auth:api','admin'])->group(function () {
     //// Admin
@@ -55,8 +60,8 @@ Route::middleware(['auth:api','admin'])->group(function () {
     Route::post('/products/destroy/{id}',[ProductController::class,'forceDelete']);
 
     // Category
-    Route::get('/category',[CategoryController::class, 'index']);
-    Route::post('/category',[CategoryController::class, 'create']);
+    Route::get('/categories',[CategoryController::class, 'index']);
+    Route::post('/categories',[CategoryController::class, 'create']);
     Route::put('/category/{id}',[CategoryController::class, 'update']);
     // Soft delete Category
     Route::delete('/category/{id}',[CategoryController::class,'destroy']);
@@ -64,6 +69,3 @@ Route::middleware(['auth:api','admin'])->group(function () {
     Route::post('/category/restore/{id}',[CategoryController::class,'restore']);
     Route::post('/category/destroy/{id}',[CategoryController::class,'forceDelete']);
 });
-
-
-

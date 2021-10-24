@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Http\Requests\LoginRequest;
 use App\Http\Resources\HomeCollection;
 use App\Http\Requests\UserRequest;
 use App\Http\Requests\UserChangeRequest;
+use App\Transformers\ProductTransformer;
 use App\Transformers\SuccessTransformer;
 use Flugg\Responder\Facades\Responder;
 use http\Client\Response;
@@ -42,21 +44,13 @@ class AuthController extends Controller
      * @param Request $userChangeRequest
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(Request $userChangeRequest): \Illuminate\Http\JsonResponse
+    public function login(LoginRequest $loginRequest)
     {
-        $validator = Validator::make($userChangeRequest->all(), [
-            'email' => 'required|email',
-            'password' => 'required|string|min:6',
-        ]);
-
-        if ($validator->fails()) {
-            return responder()->error(422)->data(['message'=>$validator->errors()])->respond(400);
-        }
-        if (! $token = auth()->attempt($validator->validated())) {
+        $validated = $loginRequest->validated();
+        if (! $token = auth()->attempt($validated)) {
             return responder()->error('422','You have entered an invalid email or password')->respond(400);
         }
-        $data = auth()->user();
-        $data->token = $token;
+        auth()->user()->token = $token;
         return responder()->success(auth()->user(),LoginTransformer::class)->respond();
     }
 
@@ -67,8 +61,9 @@ class AuthController extends Controller
      */
     public function changeInfo(UserChangeRequest $userChangeRequest): \Illuminate\Http\JsonResponse
     {
-        $validator = $userChangeRequest->validated();
+        $validated = $userChangeRequest->validated();
         $userId = auth()->user()->id;
+        $user = User::where('id',$userId);
         $userPass = auth()->user()->password;
         $oldPass = $userChangeRequest->old_password;
 
@@ -87,7 +82,7 @@ class AuthController extends Controller
                 $data = User::find($userId);
                 return responder()->success($data,SuccessTransformer::class)->respond();
             }
-            return responder()->error('403','Your old password do not match or forgot fill the token')->respond(403);
+            return responder()->error('403','Your old password do not match or forgot to fill the token')->respond(403);
         }
         $user = User::where('id',$userId)->update([
                 'name' => $userChangeRequest->name,
@@ -123,13 +118,13 @@ class AuthController extends Controller
 
     /**
      * productFavorite(): return a list of favorite products
-     * @return HomeCollection
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function productFavorite(): HomeCollection
+    public function productFavorite(): \Illuminate\Http\JsonResponse
     {
         $userId = auth()->user()->id;
-        $products = User::find($userId)->products;
-        return new HomeCollection($products);
+        $products = User::find($userId)->products()->paginate(20);
+        return responder()->success($products,ProductTransformer::class)->respond();
     }
 
 }

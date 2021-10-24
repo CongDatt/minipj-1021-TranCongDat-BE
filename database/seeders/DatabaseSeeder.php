@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             UserProductSeeder::class,
             FileSeeder::class,
             CategorySeeder::class,
+            SlideSeeder::class,
         ]);
         // \App\Models\User::factory(10)->create();
     }

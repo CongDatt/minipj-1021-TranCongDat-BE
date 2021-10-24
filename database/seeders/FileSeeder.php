@@ -54,9 +54,9 @@ class FileSeeder extends Seeder
                 'fileable_id' => $i,
             ]);
         }
-        for($i = 1; $i < 3; $i++){
+        for($i = 1; $i <= 5; $i++){
             DB::table('files')->insert([
-                "file_name" => 'img of slde',
+                "file_name" => 'img of slide',
                 "file_path" => 'https://phanolink.s3.ap-southeast-1.amazonaws.com/images_dat/nsvd5YJ4NDjxHbDEGYq6GHRcbyXcrotqdOPO7790.png',
                 'disk' => 's3',
                 'file_size' => 3942,

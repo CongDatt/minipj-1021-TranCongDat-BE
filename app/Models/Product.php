@@ -36,8 +36,8 @@ class Product extends Model
         return $this->belongsToMany(User::class);
     }
 
-    public function files(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    public function file(): \Illuminate\Database\Eloquent\Relations\MorphOne
     {
-        return $this->morphMany(File::class, 'fileable');
+        return $this->morphOne(File::class, 'fileable');
     }
 }

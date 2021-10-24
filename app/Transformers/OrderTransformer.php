@@ -36,6 +36,7 @@ class OrderTransformer extends Transformer
             'products' => (string) $order->title,
             'total_price' => (int) $order->price,
             'status' => (string) $order->status,
+            'user_id' => $userId = auth()->user()->id,
         ];
     }
 }

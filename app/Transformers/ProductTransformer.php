@@ -15,7 +15,7 @@ class ProductTransformer extends Transformer
      * @var string[]
      */
     protected $relations = [
-        'file' => FileTransformer::class,
+//        'file' => FileTransformer::class,
     ];
 
     /**
@@ -33,19 +33,19 @@ class ProductTransformer extends Transformer
      */
     public function transform(Product $product)
     {
-        return [
-            'id' => (int) $product->id,
-            'name' => (string) $product->name,
-            'description' => (string) $product->description,
-            'img_path' => (string) $product->path,
-            'is_free_shipping' => (int) $product->is_free_shipping,
-            'category_id' => (int) $product->category_id,
-            'order_id' => (int) $product->order_id,
-            'quantity' => (int) $product->quantity,
-            'original_price' => (int) $product->original_price,
-            'is_gift' => (int) $product->is_gift,
-            'is_hot' => (int) $product->is_hot,
-            'discount' => (int) $product->discount,
-        ];
+            return [
+                'id' => (int)$product->id,
+                'name' => (string)$product->name,
+                'description' => (string)$product->description,
+                'img_path' => (string)$product->file->file_path,
+                'is_free_shipping' => (int)$product->is_free_shipping,
+                'category_id' => (int)$product->category_id,
+                'order_id' => (int)$product->order_id,
+                'quantity' => (int)$product->quantity,
+                'original_price' => (int)$product->original_price,
+                'is_gift' => (int)$product->is_gift,
+                'is_hot' => (int)$product->is_hot,
+                'discount' => (int)$product->discount,
+            ];
     }
 }
