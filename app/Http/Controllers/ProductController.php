@@ -2,87 +2,145 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductRequest;
 use App\Models\Product;
+use App\Models\Slide;
+use App\Transformers\LoginTransformer;
+use App\Transformers\ProductTransformer;
 use Illuminate\Http\Request;
+use App\Http\Resources\HomeCollection;
+use App\Models\User;
+use Validator;
+use Flugg\Responder\Facades\Responder;
+use Illuminate\Support\Facades\Storage;
+use http\Client\Response;
+use App\Models\File;
 
 class ProductController extends Controller
 {
+
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * index(): show all product, search, sort product
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+            $query = Product::query();
+
+            if($q = $request->input('q')) {
+                $products = Product::where("name","like","%".$q."%")
+                    ->orWhere("description","like","%".$q."%")->paginate(20);
+                if($products->count() == 0) {
+                    return responder()->success(['message' => 'Product not found'])->respond();
+                }
+                return responder()->success($products,ProductTransformer::class)->with('files')->respond();
+            }
+            else {
+                $products = Product::paginate(20);
+                return responder()->success($products,ProductTransformer::class)->respond();
+            }
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * create(): create product and up image to s3
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function create()
+    public function create(ProductRequest $productRequest)
     {
-        //
+        $validated = $productRequest->validated();
+        $product  = Product::create($validated);
+
+        if($productRequest->hasFile('image')) {
+            $path = $productRequest->file('image')->store('images_dat','s3');
+            $image = $product->file()->create([
+                'file_name' => basename($path),
+                'file_path' => Storage::disk('s3')->url($path),
+                'disk' => 's3',
+                'file_size' => $productRequest->image->getSize(),
+            ]);
+        }
+        else {
+            $image = $product->file()->create([
+                'file_name' => '',
+                'file_path' => '',
+                'disk' => 's3',
+                'file_size' => '',
+            ]);
+        }
+        return responder()->success($product,ProductTransformer::class)->respond();
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * show(): show product detail
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function show($id): \Illuminate\Http\JsonResponse
     {
-        //
+        $product = Product::find($id);
+        return responder()->success($product,ProductTransformer::class)->respond();
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
+     * update(): change some information in a product
+     * @param Request $request
+     * @param $id
+     * @return mixed
      */
-    public function show(Product $product)
+    public function update(ProductRequest $productRequest, $id)
     {
-        //
+        $validated = $productRequest->validated();
+        $product = Product::find($id);
+        $product->fill($validated);
+        $product->save();
+        return responder()->success($product,ProductTransformer::class)->respond();
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
+     * destroy(): delete a product
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Product $product)
+    public function destroy($id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
     {
-        //
+        $product = Product::findOrFail($id);
+        $product->delete();
+        return responder()->success(['message' => 'Product deleted successfully']);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
+     * trash(): get all deleted product
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Product $product)
+    public function trash(): \Illuminate\Http\JsonResponse
     {
-        //
+        $product = Product::onlyTrashed()->get();
+        return responder()->success($product,ProductTransformer::class)->respond();
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
+     * restore(): restore deleted category
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Product $product)
+    public function restore($id): \Illuminate\Http\JsonResponse
     {
-        //
+        $product = Product::withTrashed()->findOrFail($id);
+        $product->restore();
+        return responder()->success($product,ProductTransformer::class)->respond();
     }
 
-
-
+    /**
+     * forceDelete(): destroy product without restore
+     * @param $id
+     * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
+     */
+    public function forceDelete($id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
+    {
+        $product = Product::withTrashed()->findOrFail($id);
+        $product->forceDelete();
+        return responder()->success(['message' => 'Product destroyed successfully']);
+    }
 }

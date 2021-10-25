@@ -17,7 +17,7 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    public  function product(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public  function products(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Product::class);
     }
@@ -37,9 +37,11 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'phone',
+        'order_id',
         'gender',
         'address',
-        'birthday'
+        'birthday',
+        'is_admin',
     ];
 
     /**

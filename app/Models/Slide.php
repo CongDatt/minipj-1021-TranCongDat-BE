@@ -9,9 +9,10 @@ use App\Models\File;
 class Slide extends Model
 {
     use HasFactory;
+    protected $fillable = ['img_path'];
 
     public function files(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
-        return $this->morphOne(File::class, 'fileable');
+        return $this->morphMany(File::class, 'fileable');
     }
 }

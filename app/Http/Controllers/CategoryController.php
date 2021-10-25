@@ -2,84 +2,114 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CategoryRequest;
+use App\Http\Resources\HomeCollection;
 use App\Models\Category;
+use App\Models\Product;
+use App\Transformers\CategoryTransformer;
+use App\Transformers\ProductTransformer;
 use Illuminate\Http\Request;
+use Validator;
 
 class CategoryController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * index(): show all category
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(): \Illuminate\Http\JsonResponse
     {
-        //
+        $category = Category::paginate(20);
+        return responder()->success($category,CategoryTransformer::class)->respond();
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * create(): creatw a new category
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function create()
+    public function create(CategoryRequest $categoryRequest): \Illuminate\Http\JsonResponse
     {
-        //
+        $category = Category::create($categoryRequest->validated());
+        return responder()->success($category,CategoryTransformer::class)->respond();
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * show(): show detail category
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function show(CategoryRequest $categoryRequest,$id): \Illuminate\Http\JsonResponse
     {
-        //
+        $products = Category::find($id)->products();
+        if($sort = $categoryRequest->input('sort')) {
+            $products = $products->orderBy('original_price',$sort)->paginate(20);
+            return responder()->success($products,ProductTransformer::class)->respond();
+        }
+        if($sort = $categoryRequest->input('discount')) {
+            $products = $products->orderBy('discount',$sort)->paginate(20);
+            return responder()->success($products,ProductTransformer::class)->respond();
+        }
+        return responder()->success($products->paginate(20),ProductTransformer::class)->respond();
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
+     * update(): update cate information's category
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Category $category)
+    public function update(CategoryRequest $categoryRequest, $id)
     {
-        //
+        $category = Category::find($id);
+        $category->slug = null;
+        $category->update($categoryRequest->all());
+        return responder()->success($category,CategoryTransformer::class)->respond();
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
+     * destroy(): delete category
+     * @param $id
+     * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
      */
-    public function edit(Category $category)
+    public function destroy($id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
     {
-        //
+        $product = Category::findOrFail($id);
+        $product->delete();
+        return responder()->success(['message' => 'Category deleted successfully']);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
+     * trash(): get all deleted category
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Category $category)
+    public function trash(): \Illuminate\Http\JsonResponse
     {
-        //
+        $product = Category::onlyTrashed()->paginate(20);
+        return responder()->success($product,CategoryTransformer::class)->respond();
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
+     * restore(): restore deleted category
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Category $category)
+    public function restore($id): \Illuminate\Http\JsonResponse
     {
-        //
+        $product = Category::withTrashed()->findOrFail($id);
+        $product->restore();
+        return responder()->success($product,CategoryTransformer::class)->respond();
+    }
+
+    /**
+     * forceDelete(): destroy category without restore
+     * @param $id
+     * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
+     */
+    public function forceDelete($id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
+    {
+        $product = Category::withTrashed()->findOrFail($id);
+        $product->forceDelete();
+        return responder()->success(['message' => 'Category destroyed successfully']);
     }
 }

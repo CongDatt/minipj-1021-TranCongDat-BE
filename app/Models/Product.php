@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Category;
 use App\Models\User;
@@ -15,17 +16,19 @@ use App\Models\Order;
 class Product extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'description','is_free_shipping','category_id','original_price',
+    use SoftDeletes;
+
+    protected $fillable = ['name', 'description','is_free_shipping','quantity','category_id','original_price',
         'is_gift','is_hot','discount','order_id'];
 
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Category::class,'category_id');
+        return $this->belongsTo(Category::class,'category_id','id');
     }
 
     public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Order::class,'order_id');
+        return $this->belongsTo(Order::class,'order_id','id');
     }
 
     public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
@@ -33,8 +36,8 @@ class Product extends Model
         return $this->belongsToMany(User::class);
     }
 
-    public function files(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    public function file(): \Illuminate\Database\Eloquent\Relations\MorphOne
     {
-        return $this->morphMany(File::class, 'fileable');
+        return $this->morphOne(File::class, 'fileable');
     }
 }

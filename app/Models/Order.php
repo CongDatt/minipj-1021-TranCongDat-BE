@@ -18,6 +18,6 @@ class Order extends Model
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Order::class,'id');
+        return $this->belongsTo(Order::class,'order_id');
     }
 }
