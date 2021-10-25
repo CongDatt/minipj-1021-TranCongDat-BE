@@ -34,7 +34,7 @@ class FileSeeder extends Seeder
                 'fileable_id' => $i,
             ]);
         }
-        for($i = 10; $i < 15; $i++){
+        for($i = 10; $i < 19; $i++){
             DB::table('files')->insert([
                 "file_name" => 'img of product',
                 "file_path" => 'https://phanolink.s3.ap-southeast-1.amazonaws.com/images_dat/r7eCutMCC17i4rV8WVRk7mO9jBsTb9KqG1B1oDrk.png',
@@ -44,12 +44,22 @@ class FileSeeder extends Seeder
                 'fileable_id' => $i,
             ]);
         }
-        for($i = 15; $i < 20; $i++){
+        for($i = 19; $i < 30; $i++){
             DB::table('files')->insert([
                 "file_name" => 'img of product',
-                "file_path" => 'https://phanolink.s3.ap-southeast-1.amazonaws.com/images_dat/yWIsTDKVl6RjyNCVziXU5c7k6YxvBFDzB5sa63Oi.jpg',
+                "file_path" => 'https://phanolink.s3.ap-southeast-1.amazonaws.com/images_dat/QflgJMjhlRFUV39Of8lpD84IlNX6LXVnokBADpOe.png',
                 'disk' => 's3',
                 'file_size' => 3942,
+                'fileable_type' => 'App\Models\Product',
+                'fileable_id' => $i,
+            ]);
+        }
+        for($i = 30; $i < 39; $i++){
+            DB::table('files')->insert([
+                "file_name" => 'img of product',
+                "file_path" => 'https://phanolink.s3.ap-southeast-1.amazonaws.com/images_dat/QflgJMjhlRFUV39Of8lpD84IlNX6LXVnokBADpOe.png',
+                'disk' => 's3',
+                'file_size' => 3941,
                 'fileable_type' => 'App\Models\Product',
                 'fileable_id' => $i,
             ]);

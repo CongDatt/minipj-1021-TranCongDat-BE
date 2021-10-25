@@ -47,7 +47,7 @@ Route::get('/categories/{id}',[CategoryController::class,'show']);
 Route::get('/slides/{id}',[SlideController::class,'show']);
 Route::get('/slides',[SlideController::class,'index']);
 
-Route::middleware(['auth:api','admin'])->group(function () {
+//Route::middleware(['auth:api','admin'])->group(function () {
     //// Admin
     // Products
     Route::get('/products',[ProductController::class,'index']);
@@ -68,4 +68,4 @@ Route::middleware(['auth:api','admin'])->group(function () {
     Route::post('/category/trash',[CategoryController::class,'trash']);
     Route::post('/category/restore/{id}',[CategoryController::class,'restore']);
     Route::post('/category/destroy/{id}',[CategoryController::class,'forceDelete']);
-});
+//});

@@ -56,7 +56,7 @@ class HomeController extends Controller
      */
     public function giftProduct(): \Illuminate\Http\JsonResponse
     {
-        $product = Product::where('is_gift',1)->paginate(20);
+        $product = Product::where('discount','>=',80)->paginate(20);
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 

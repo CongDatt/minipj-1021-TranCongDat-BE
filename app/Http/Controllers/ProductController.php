@@ -53,7 +53,7 @@ class ProductController extends Controller
         $product  = Product::create($validated);
 
         if($productRequest->hasFile('image')) {
-            $path = $productRequest->file('image')->store('images_dat');
+            $path = $productRequest->file('image')->store('images_dat','s3');
             $image = $product->file()->create([
                 'file_name' => basename($path),
                 'file_path' => Storage::disk('s3')->url($path),
