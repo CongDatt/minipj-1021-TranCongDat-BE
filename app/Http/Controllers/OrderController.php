@@ -33,17 +33,16 @@ class OrderController extends Controller
      */
     public function create(Request $request)
     {
-        $total = 0;
         $title = '';
         foreach ($request->carts as $cart){
-            $total += $cart['price'];
             $title .= $cart['title'].",";
         }
         $title = substr($title, 0, -1);
         $User = User::find(auth()->user()->id);
         $order = $User->orders()->create([
-           'title' => $title,
-           'price' => $total,
+            'title' => $title,
+            'price' => $request->total,
+            'date_buy' =>Carbon::now(),
             'user_id' => $userId = auth()->user()->id
         ]);
         return responder()->success($order,OrderTransformer::class)->respond();
