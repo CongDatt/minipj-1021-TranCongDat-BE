@@ -69,7 +69,7 @@ class AuthController extends Controller
 
         if($oldPass) {
             if(Hash::check($oldPass, $userPass)) {
-                $user = User::where('id',$userId)->update([
+                $user->update([
                         'password' => bcrypt($userChangeRequest->new_password),
                         'name' => $userChangeRequest->name,
                         'phone' => $userChangeRequest->phone,
@@ -84,7 +84,7 @@ class AuthController extends Controller
             }
             return responder()->error('403','Your old password do not match or forgot to fill the token')->respond(403);
         }
-        $user = User::where('id',$userId)->update([
+        $user->update([
                 'name' => $userChangeRequest->name,
                 'phone' => $userChangeRequest->phone,
                 'email' => $userChangeRequest->email,

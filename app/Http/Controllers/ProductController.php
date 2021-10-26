@@ -93,8 +93,7 @@ class ProductController extends Controller
     {
         $validated = $productRequest->validated();
         $product = Product::find($id);
-        $product->fill($validated);
-        $product->save();
+        $product->update($validated);
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 

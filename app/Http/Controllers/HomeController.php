@@ -39,7 +39,7 @@ class HomeController extends Controller
             }
             return responder()->success($products,ProductTransformer::class)->respond();
         }
-        $products = Product::paginate(20);
+        $products = Product::paginate(20)->sortBy('id');
         return responder()->success($products,ProductTransformer::class)->respond();
     }
 

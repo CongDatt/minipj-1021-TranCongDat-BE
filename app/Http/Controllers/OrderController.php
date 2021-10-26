@@ -22,7 +22,7 @@ class OrderController extends Controller
     public function index()
     {
         $userId = auth()->user()->id;
-        $orders = User::find($userId)->orders;
+        $orders = User::find($userId)->orders()->paginate(5);
         return responder()->success($orders,OrderTransformer::class)->respond();
     }
 
