@@ -26,14 +26,14 @@ class CategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'category_name' => 'required|string',
+            'category_name' => 'required|string|unique',
         ];
     }
 
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(
-            responder()->error(400)->data(['message' => $validator->errors()])->respond(422)
+            responder()->error(403)->data(['message' => $validator->errors()])->respond(403)
         );
     }
 }

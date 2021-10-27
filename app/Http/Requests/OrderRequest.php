@@ -2,12 +2,11 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
-use Flugg\Responder\Facades\Responder;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ProductRequest extends FormRequest
+class OrderRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,16 +26,8 @@ class ProductRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string',
-            'description' => 'string',
-            'is_free_shipping' => 'numeric',
-            'category_id' => 'numeric|exists:categories',
-            'order_id' => 'numeric',
-            'original_price' => 'numeric',
-            'quantity' => 'numeric',
-            'is_gift' => 'numeric',
-            'is_hot' => 'numeric',
-            'discount' => 'numeric',
+            'carts' => 'require|array',
+            'total' => 'require'
         ];
     }
 
