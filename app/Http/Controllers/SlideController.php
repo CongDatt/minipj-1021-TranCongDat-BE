@@ -11,6 +11,7 @@ use App\Transformers\SlideTransformer;
 class SlideController extends Controller
 {
     /**
+     * return all slides
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(){
@@ -19,6 +20,7 @@ class SlideController extends Controller
     }
 
     /**
+     * return a slide
      * @param Slide $slide
      * @param $id
      * @return \Illuminate\Http\JsonResponse

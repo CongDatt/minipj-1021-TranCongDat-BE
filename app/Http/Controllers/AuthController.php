@@ -40,7 +40,7 @@ class AuthController extends Controller
     }
 
     /**
-     * login(): accessing a user to system
+     * login(): login a user to system
      * @param Request $userChangeRequest
      * @return \Illuminate\Http\JsonResponse
      */
@@ -48,7 +48,7 @@ class AuthController extends Controller
     {
         $validated = $loginRequest->validated();
         if (! $token = auth()->attempt($validated)) {
-            return responder()->error('422','You have entered an invalid email or password')->respond(400);
+            return responder()->error('401','You have entered an invalid email or password')->respond(401);
         }
         auth()->user()->token = $token;
         return responder()->success(auth()->user(),LoginTransformer::class)->respond();
@@ -82,7 +82,7 @@ class AuthController extends Controller
                 $data = User::find($userId);
                 return responder()->success($data,SuccessTransformer::class)->respond();
             }
-            return responder()->error('403','Your old password do not match or forgot to fill the token')->respond(403);
+            return responder()->error('401','Your old password do not match or forgot to fill the token')->respond(401);
         }
         $user->update([
                 'name' => $userChangeRequest->name,

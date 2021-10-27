@@ -32,7 +32,7 @@ class ProductController extends Controller
                 $products = Product::where("name","like","%".$q."%")
                     ->orWhere("description","like","%".$q."%")->paginate(20);
                 if($products->count() == 0) {
-                    return responder()->success(['message' => 'Product not found'])->respond();
+                    return responder()->error(['message' => 'Product not found'])->respond(404);
                 }
                 return responder()->success($products,ProductTransformer::class)->with('files')->respond();
             }

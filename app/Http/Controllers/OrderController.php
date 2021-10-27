@@ -15,7 +15,7 @@ use Validator;
 class OrderController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * return all the orders of user
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -27,7 +27,7 @@ class OrderController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * create an order
      *
      * @return \Illuminate\Http\JsonResponse
      */
