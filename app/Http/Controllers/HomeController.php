@@ -15,7 +15,7 @@ use Flugg\Responder\Facades\Responder;
 class HomeController extends Controller
 {
     /**
-     * index(): return a product collection
+     * index(): return products
      * @param Request $request
      * @return HomeCollection|\Illuminate\Http\JsonResponse
      */
@@ -35,7 +35,7 @@ class HomeController extends Controller
             $products = Product::where("name","like","%".$q."%")
                 ->orWhere("description","like","%".$q."%")->paginate(20);
             if($products->count() == 0) {
-                return responder()->success(['message' => 'Product not found'])->respond(200);
+                return responder()->error(['message' => 'Product not found'])->respond(404);
             }
             return responder()->success($products,ProductTransformer::class)->respond();
         }
@@ -44,7 +44,7 @@ class HomeController extends Controller
     }
 
     /**
-     * hotProduct() return a collection of hot products
+     * hotProduct() return hot products
      */
     public function hotProduct(): \Illuminate\Http\JsonResponse
     {
@@ -52,7 +52,7 @@ class HomeController extends Controller
         return $this->success($product,ProductTransformer::class)->respond();
     }
     /**
-     * giftProduct() return a collection of gift products
+     * giftProduct() return gift products
      */
     public function giftProduct(): \Illuminate\Http\JsonResponse
     {
@@ -61,7 +61,7 @@ class HomeController extends Controller
     }
 
     /**
-     * freeShippingProduct() return a collection of free shipping products
+     * freeShippingProduct() return a free shipping products
      */
     public function freeShippingProduct(): \Illuminate\Http\JsonResponse
     {
@@ -70,7 +70,7 @@ class HomeController extends Controller
     }
 
     /**
-     * categoryList() return a collection of categories
+     * categoryList() return a list of categories
      */
     public function categoryList()
     {

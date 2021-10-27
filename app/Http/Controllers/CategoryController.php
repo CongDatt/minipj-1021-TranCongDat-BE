@@ -14,7 +14,7 @@ use Validator;
 class CategoryController extends Controller
 {
     /**
-     * index(): show all category
+     * index(): show all categories
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(): \Illuminate\Http\JsonResponse
@@ -24,7 +24,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * create(): creatw a new category
+     * create(): create a new category
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -35,7 +35,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * show(): show detail category
+     * show(): show category
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -54,7 +54,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * update(): update cate information's category
+     * update(): update category information's category
      * @param Request $request
      * @param $id
      * @return \Illuminate\Http\JsonResponse
@@ -68,7 +68,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * destroy(): delete category
+     * destroy(): delete a category
      * @param $id
      * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
      */
@@ -80,7 +80,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * trash(): get all deleted category
+     * trash(): get all deleted categories
      * @return \Illuminate\Http\JsonResponse
      */
     public function trash(): \Illuminate\Http\JsonResponse
@@ -90,7 +90,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * restore(): restore deleted category
+     * restore(): restore a deleted category
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
