@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\OrderRequest;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -31,17 +32,17 @@ class OrderController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function create(Request $request)
+    public function create(OrderRequest $orderRequest)
     {
         $title = '';
-        foreach ($request->carts as $cart){
+        foreach ($orderRequest->carts as $cart){
             $title .= $cart['title'].",";
         }
         $title = substr($title, 0, -1);
         $User = User::find(auth()->user()->id);
         $order = $User->orders()->create([
             'title' => $title,
-            'price' => $request->total,
+            'price' => $orderRequest->total,
             'date_buy' =>Carbon::now(),
             'user_id' => $userId = auth()->user()->id
         ]);
