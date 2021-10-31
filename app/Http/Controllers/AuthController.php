@@ -6,7 +6,7 @@ use App\Http\Resources\HomeCollection;
 use App\Http\Requests\UserRequest;
 use App\Http\Requests\UserChangeRequest;
 use App\Transformers\ProductTransformer;
-use App\Transformers\SuccessTransformer;
+use App\Transformers\UserTransformer;
 use Flugg\Responder\Facades\Responder;
 use http\Client\Response;
 use Illuminate\Http\Request;
@@ -34,9 +34,8 @@ class AuthController extends Controller
     public function register(UserRequest $userRequest): \Illuminate\Http\JsonResponse
     {
         $validated = $userRequest->validated();
-        $validated['password'] = Hash::make($validated['password']);
         $user = User::create($validated);
-        return responder()->success($user,SuccessTransformer::class)->respond();
+        return responder()->success($user,UserTransformer::class)->respond();
     }
 
     /**
@@ -47,11 +46,10 @@ class AuthController extends Controller
     public function login(LoginRequest $loginRequest)
     {
         $validated = $loginRequest->validated();
-        if (! $token = auth()->attempt($validated)) {
+        if (!$token = auth()->attempt($validated)) {
             return responder()->error('401','You have entered an invalid email or password')->respond(401);
         }
-        auth()->user()->token = $token;
-        return responder()->success(auth()->user(),LoginTransformer::class)->respond();
+        return responder()->success($this->createNewToken($token))->respond();
     }
 
     /**
@@ -59,42 +57,12 @@ class AuthController extends Controller
      * @param Request $userChangeRequest
      * @return \Illuminate\Http\JsonResponse
      */
-    public function changeInfo(UserChangeRequest $userChangeRequest): \Illuminate\Http\JsonResponse
+    public function changeInfo(UserChangeRequest $userChangeRequest)
     {
         $validated = $userChangeRequest->validated();
-        $userId = auth()->user()->id;
-        $user = User::where('id',$userId);
-        $userPass = auth()->user()->password;
-        $oldPass = $userChangeRequest->old_password;
-
-        if($oldPass) {
-            if(Hash::check($oldPass, $userPass)) {
-                $user->update([
-                        'password' => bcrypt($userChangeRequest->new_password),
-                        'name' => $userChangeRequest->name,
-                        'phone' => $userChangeRequest->phone,
-                        'email' => $userChangeRequest->email,
-                        'address' => $userChangeRequest->address,
-                        'gender'=> $userChangeRequest->gender,
-                        'birthday'=> $userChangeRequest->birthday,
-                    ]
-                );
-                $data = User::find($userId);
-                return responder()->success($data,SuccessTransformer::class)->respond();
-            }
-            return responder()->error('401','Your old password do not match or forgot to fill the token')->respond(401);
-        }
-        $user->update([
-                'name' => $userChangeRequest->name,
-                'phone' => $userChangeRequest->phone,
-                'email' => $userChangeRequest->email,
-                'address' => $userChangeRequest->address,
-                'gender'=> $userChangeRequest->gender,
-                'birthday'=> $userChangeRequest->birthday,
-            ]
-        );
-        $data = User::find($userId);
-        return responder()->success($data,SuccessTransformer::class)->respond();
+        $user = User::find(auth()->user()->id);
+        $user->update($validated);
+        return $user;
     }
 
     /**
@@ -113,7 +81,7 @@ class AuthController extends Controller
      */
     public function userProfile(): \Illuminate\Http\JsonResponse
     {
-        return responder()->success(auth()->user(),SuccessTransformer::class)->respond();
+        return responder()->success(auth()->user(),UserTransformer::class)->respond();
     }
 
     /**
@@ -122,9 +90,19 @@ class AuthController extends Controller
      */
     public function productFavorite(): \Illuminate\Http\JsonResponse
     {
-        $userId = auth()->user()->id;
-        $products = User::find($userId)->products()->paginate(20);
+        $user = User::find(auth()->user()->id);
+        $products = $user->products()->paginate(20);
         return responder()->success($products,ProductTransformer::class)->respond();
+    }
+
+    protected function createNewToken($token): array
+    {
+        return [
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60,
+            'user' => auth()->user()
+        ];
     }
 
 }

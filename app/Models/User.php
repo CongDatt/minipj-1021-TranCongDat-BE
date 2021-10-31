@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Carbon;
 use App\Models\Order;
@@ -82,15 +83,12 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    /**
-     * Set the user's birthday.
-     * @param $value
-     * @return string
-     */
-    public function setBirthDayAttribute($value)
-    {
-        $this->attributes['birthday'] = $this->attributes['birthday']->format('Y-m-d');
-//        $date = Carbon::parse($value);
-//        return $date->format('d-m-Y');
+    public function setPasswordAttribute($value){
+        $this->attributes['password'] = Hash::make($value);
     }
+
+    public function setNewPasswordAttribute($value){
+        $this->attributes['new_password'] = Hash::make($value);
+    }
+
 }
