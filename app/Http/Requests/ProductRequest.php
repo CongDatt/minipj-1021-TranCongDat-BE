@@ -30,7 +30,7 @@ class ProductRequest extends FormRequest
             'name' => 'required|string',
             'description' => 'string',
             'is_free_shipping' => 'numeric',
-            'category_id' => 'numeric|exists:categories',
+            'category_id' => 'numeric|exists:categories,id',
             'order_id' => 'numeric',
             'original_price' => 'numeric',
             'quantity' => 'numeric',

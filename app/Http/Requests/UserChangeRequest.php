@@ -27,14 +27,14 @@ class UserChangeRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|between:2,100',
-            'email' => 'required|string|email|unique:users|max:100',
+            'name' => 'string|between:2,100',
+            'email' => 'string|email|unique:users|max:100',
             'phone' => 'min:6',
-            'gender'=>'string',
+            'gender'=>'numeric',
             'birthday'=>'string',
             'address' => 'string|min:10',
             'old_password' => 'string|min:6',
-            'new_password' => 'string|min:6|confirmed',
+            'new_password' => 'string|min:6',
         ];
     }
 

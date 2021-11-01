@@ -15,6 +15,7 @@ use Flugg\Responder\Facades\Responder;
 use Illuminate\Support\Facades\Storage;
 use http\Client\Response;
 use App\Models\File;
+use App\Services\ImageService;
 
 class ProductController extends Controller
 {
@@ -42,32 +43,16 @@ class ProductController extends Controller
             }
     }
 
-    /**
-     * create(): create product and up image to s3
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function create(ProductRequest $productRequest)
+    public function create(ProductRequest $productRequest, ImageService $imageService)
     {
         $validated = $productRequest->validated();
         $product  = Product::create($validated);
 
         if($productRequest->hasFile('image')) {
-            $path = $productRequest->file('image')->store('images_dat','s3');
-            $image = $product->file()->create([
-                'file_name' => basename($path),
-                'file_path' => Storage::disk('s3')->url($path),
-                'disk' => 's3',
-                'file_size' => $productRequest->image->getSize(),
-            ]);
-        }
-        else {
-            $image = $product->file()->create([
-                'file_name' => '',
-                'file_path' => '',
-                'disk' => 's3',
-                'file_size' => '',
-            ]);
+            $file = $productRequest->file('image');
+            $fileUploaded = $imageService->UploadImage($file);
+            $fileAttached = $imageService->AttachImage($product, $fileUploaded);
+            return responder()->success($product,ProductTransformer::class)->respond();
         }
         return responder()->success($product,ProductTransformer::class)->respond();
     }
@@ -84,25 +69,32 @@ class ProductController extends Controller
     }
 
     /**
-     * update(): change some information in a product
-     * @param Request $request
+     * @param ProductRequest $productRequest
+     * @param ImageService $imageService
      * @param $id
-     * @return mixed
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(ProductRequest $productRequest, $id)
+
+    public function update(ProductRequest $productRequest, ImageService $imageService, $id): \Illuminate\Http\JsonResponse
     {
         $validated = $productRequest->validated();
-        $product = Product::find($id);
-        $product->update($validated);
+        $product = Product::find($id)->update($validated);
+
+        if($productRequest->hasFile('image')) {
+            $file = $productRequest->file('image');
+            $fileUploaded = $imageService->UploadImage($file);
+            $fileAttached = $imageService->AttachImage($product, $fileUploaded);
+            return responder()->success($product,ProductTransformer::class)->respond();
+        }
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 
     /**
-     * destroy(): delete a product
+     * @param ImageService $imageService
      * @param $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
      */
-    public function destroy($id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
+    public function destroy(ImageService $imageService, $id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
     {
         $product = Product::findOrFail($id);
         $product->delete();
@@ -133,12 +125,15 @@ class ProductController extends Controller
 
     /**
      * forceDelete(): destroy product without restore
+     * @param ImageService $imageService
      * @param $id
      * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder
      */
-    public function forceDelete($id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
+    public function forceDelete(ImageService $imageService, $id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
     {
         $product = Product::withTrashed()->findOrFail($id);
+        $imageService->DeleteImage($product->file->file_path);
+        $imageService->DetachImage($product);
         $product->forceDelete();
         return responder()->success(['message' => 'Product destroyed successfully']);
     }

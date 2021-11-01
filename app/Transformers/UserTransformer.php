@@ -5,7 +5,7 @@ namespace App\Transformers;
 use App\Models\User;
 use Flugg\Responder\Transformers\Transformer;
 
-class SuccessTransformer extends Transformer
+class UserTransformer extends Transformer
 {
     /**
      * List of available relations.
