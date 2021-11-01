@@ -26,6 +26,10 @@ class ImageService
         ]);
     }
 
+    /**
+     * @param $filePath
+     * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder|\Illuminate\Http\JsonResponse
+     */
     public function DeleteImage($filePath)
     {
         if($filePath) {
