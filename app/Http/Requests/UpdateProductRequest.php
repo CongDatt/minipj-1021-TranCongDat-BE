@@ -7,7 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Flugg\Responder\Facades\Responder;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ProductRequest extends FormRequest
+class UpdateProductRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -30,7 +30,6 @@ class ProductRequest extends FormRequest
             'name' => 'required|string',
             'description' => 'string',
             'is_free_shipping' => 'numeric',
-            'image'=>'required',
             'category_id' => 'numeric|exists:categories,id',
             'order_id' => 'numeric',
             'original_price' => 'numeric',

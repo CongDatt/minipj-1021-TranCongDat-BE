@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CreateProductAction;
 use App\Http\Requests\ProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use App\Models\Slide;
 use App\Transformers\LoginTransformer;
@@ -16,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use http\Client\Response;
 use App\Models\File;
 use App\Services\ImageService;
+use App\Http\Controllers\UploadImageController;
 
 class ProductController extends Controller
 {
@@ -43,17 +46,12 @@ class ProductController extends Controller
             }
     }
 
-    public function create(ProductRequest $productRequest, ImageService $imageService)
+    public function create(UploadImageController $uploadImageController,ProductRequest $productRequest,ImageService $imageService)
     {
-        $validated = $productRequest->validated();
-        $product  = Product::create($validated);
-
-        if($productRequest->hasFile('image')) {
-            $file = $productRequest->file('image');
-            $fileUploaded = $imageService->UploadImage($file);
-            $fileAttached = $imageService->AttachImage($product, $fileUploaded);
-            return responder()->success($product,ProductTransformer::class)->respond();
-        }
+        $data = $uploadImageController->validated();
+        $productInformation = Product::create($data);
+        $file = $uploadImageController->store($productRequest->file('image'));
+        $product = $imageService->attachImage($productInformation, $file);
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 
@@ -75,18 +73,16 @@ class ProductController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function update(ProductRequest $productRequest, ImageService $imageService, $id): \Illuminate\Http\JsonResponse
+    public function update(UpdateProductRequest $updateProductRequest, ImageService $imageService,UploadImageController $uploadImageController,$id): \Illuminate\Http\JsonResponse
     {
-        $validated = $productRequest->validated();
-        $product = Product::find($id)->update($validated);
-
-        if($productRequest->hasFile('image')) {
-            $file = $productRequest->file('image');
-            $fileUploaded = $imageService->UploadImage($file);
-            $fileAttached = $imageService->AttachImage($product, $fileUploaded);
+        $data = $updateProductRequest->validated();
+        $productInformation = Product::find($id)->update($data);
+        if($updateProductRequest->file('image')){
+            $file = $uploadImageController->store($updateProductRequest->file('image'));
+            $product = $imageService->attachImage($productInformation, $file);
             return responder()->success($product,ProductTransformer::class)->respond();
         }
-        return responder()->success($product,ProductTransformer::class)->respond();
+        return responder()->success($data)->respond();
     }
 
     /**
@@ -132,8 +128,7 @@ class ProductController extends Controller
     public function forceDelete(ImageService $imageService, $id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
     {
         $product = Product::withTrashed()->findOrFail($id);
-        $imageService->DeleteImage($product->file->file_path);
-        $imageService->DetachImage($product);
+        $imageService->deleteImage($product->file->file_path);
         $product->forceDelete();
         return responder()->success(['message' => 'Product destroyed successfully']);
     }

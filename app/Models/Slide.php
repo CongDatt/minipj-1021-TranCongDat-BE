@@ -11,7 +11,7 @@ class Slide extends Model
     use HasFactory;
     protected $fillable = ['img_path'];
 
-    public function files(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    public function file(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(File::class, 'fileable');
     }
