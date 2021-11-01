@@ -12,6 +12,10 @@ use App\Models\File;
 
 class ImageService
 {
+    /**
+     * @param $file
+     * @return mixed
+     */
     public function UploadImage($file){
         $path = $file->store('images_dat','s3');
         return File::create([
