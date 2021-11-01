@@ -47,7 +47,7 @@ Route::get('/categories/{id}',[CategoryController::class,'show']);
 Route::get('/slides/{id}',[SlideController::class,'show']);
 Route::get('/slides',[SlideController::class,'index']);
 
-Route::middleware(['auth:api','admin'])->group(function () {
+//Route::middleware(['auth:api','admin'])->group(function () {
     //// Admin
     // Products
     Route::get('/products',[ProductController::class,'index']);
@@ -55,17 +55,8 @@ Route::middleware(['auth:api','admin'])->group(function () {
     Route::put('/products/{id}',[ProductController::class,'update']);
     // Soft delete Product
     Route::delete('/products/{id}',[ProductController::class,'destroy']);
-    Route::post('/products/trash',[ProductController::class,'trash']);
+    Route::get('/products/trash',[ProductController::class,'trash']);
     Route::post('/products/restore/{id}',[ProductController::class,'restore']);
     Route::post('/products/destroy/{id}',[ProductController::class,'forceDelete']);
 
-    // Category
-    Route::get('/categories',[CategoryController::class, 'index']);
-    Route::post('/categories',[CategoryController::class, 'create']);
-    Route::put('/category/{id}',[CategoryController::class, 'update']);
-    // Soft delete Category
-    Route::delete('/category/{id}',[CategoryController::class,'destroy']);
-    Route::post('/category/trash',[CategoryController::class,'trash']);
-    Route::post('/category/restore/{id}',[CategoryController::class,'restore']);
-    Route::post('/category/destroy/{id}',[CategoryController::class,'forceDelete']);
-});
+//});
