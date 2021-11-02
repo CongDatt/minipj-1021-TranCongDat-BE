@@ -27,20 +27,33 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-            $query = Product::query();
+        $products = Product::query()
 
-            if($q = $request->input('q')) {
-                $products = Product::where("name","like","%".$q."%")
-                    ->orWhere("description","like","%".$q."%")->paginate(20);
-                if($products->count() == 0) {
-                    return responder()->error(['message' => 'Product not found'])->respond(404);
-                }
-                return responder()->success($products,ProductTransformer::class)->with('files')->respond();
-            }
-            else {
-                $products = Product::paginate(20);
-                return responder()->success($products,ProductTransformer::class)->respond();
-            }
+            ->when($request->has('q'), function ($query) use ($request) {
+                $query->where("name","like","%".$request->q."%")
+                    ->Orwhere("description","like","%".$request->q."%");
+            })
+            ->when($request->has('discount'), function ($query) use ($request) {
+                $query->where('discount','>', 0);
+            })
+            ->when($request->has('gift'), function ($query) use ($request) {
+                $query->where('discount','>', 80);
+            })
+            ->when($request->has('hot'), function ($query) use ($request) {
+                $query->where('is_hot',1);
+            })
+            ->when($request->has('free'), function ($query) use ($request) {
+                $query->where('is_free_shipping',1);
+            })
+            ->when($request->has('sort'), function ($query) use ($request) {
+                $query->orderBy('original_price',$request->sort);
+            })
+            ->paginate(20);
+        
+        if($products->total() > 0) {
+            return responder()->success($products,ProductTransformer::class)->respond();
+        }
+        return responder()->error('404','not found')->respond(404);
     }
 
     public function create(ProductRequest $productRequest, ImageService $imageService)
