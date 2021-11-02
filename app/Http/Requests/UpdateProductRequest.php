@@ -27,7 +27,7 @@ class UpdateProductRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string',
+            'name' => 'string',
             'description' => 'string',
             'is_free_shipping' => 'numeric',
             'category_id' => 'numeric|exists:categories,id',

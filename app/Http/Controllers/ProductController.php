@@ -48,7 +48,7 @@ class ProductController extends Controller
 
     public function create(UploadImageController $uploadImageController,ProductRequest $productRequest,ImageService $imageService)
     {
-        $data = $uploadImageController->validated();
+        $data = $productRequest->validated();
         $productInformation = Product::create($data);
         $file = $uploadImageController->store($productRequest->file('image'));
         $product = $imageService->attachImage($productInformation, $file);
@@ -77,12 +77,14 @@ class ProductController extends Controller
     {
         $data = $updateProductRequest->validated();
         $productInformation = Product::find($id)->update($data);
+
         if($updateProductRequest->file('image')){
-            $file = $uploadImageController->store($updateProductRequest->file('image'));
-            $product = $imageService->attachImage($productInformation, $file);
+            $file = $uploadImageController->updateImage($updateProductRequest->file('image'), $id);
+            $product = $imageService->attachImage(Product::find($id), $file);
             return responder()->success($product,ProductTransformer::class)->respond();
         }
-        return responder()->success($data)->respond();
+
+        return responder()->success(Product::find($id),ProductTransformer::class)->respond();
     }
 
     /**
@@ -94,17 +96,8 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         $product->delete();
-        return responder()->success(['message' => 'Product deleted successfully']);
-    }
 
-    /**
-     * trash(): get all deleted product
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function trash(): \Illuminate\Http\JsonResponse
-    {
-        $product = Product::onlyTrashed()->get();
-        return responder()->success($product,ProductTransformer::class)->respond();
+        return responder()->success(['message' => 'Product deleted successfully']);
     }
 
     /**
@@ -116,6 +109,7 @@ class ProductController extends Controller
     {
         $product = Product::withTrashed()->findOrFail($id);
         $product->restore();
+
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 
@@ -128,8 +122,11 @@ class ProductController extends Controller
     public function forceDelete(ImageService $imageService, $id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
     {
         $product = Product::withTrashed()->findOrFail($id);
+
         $imageService->deleteImage($product->file->file_path);
+        $product->file()->delete();
         $product->forceDelete();
+
         return responder()->success(['message' => 'Product destroyed successfully']);
     }
 }

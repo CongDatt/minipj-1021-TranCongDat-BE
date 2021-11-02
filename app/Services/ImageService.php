@@ -12,20 +12,20 @@ use App\Models\File;
 
 class ImageService
 {
-    /**
-     * @param $file
-     * @return mixed
-     */
-    public function uploadImage($file){
-        $path = $file->store('images_dat');
-        $file = File::create([
-            'file_name' => basename($path),
-            'file_path' => Storage::disk('local')->url($path),
-            'disk' => 's3',
-            'file_size'=> $file->getSize(),
-        ]);
-        return null;
-    }
+//    /**
+//     * @param $file
+//     * @return mixed
+//     */
+//    public function uploadImage($file){
+//        $path = $file->store('images_dat');
+//        $file = File::create([
+//            'file_name' => basename($path),
+//            'file_path' => Storage::disk('s3')->url($path),
+//            'disk' => 's3',
+//            'file_size'=> $file->getSize(),
+//        ]);
+//        return null;
+//    }
 
     /**
      * @param $filePath
@@ -34,13 +34,14 @@ class ImageService
     public function deleteImage($filePath)
     {
         if($filePath) {
-            Storage::disk('s3')->delete($filePath);
+            Storage::disk('local')->delete($filePath);
             return responder()->success(['message' => 'file deleted successfully']);
         }
         return responder()->error(['message' => 'File not found'])->respond(404);
     }
 
-    public function attachImage(Product $product, $file) {
+    public function attachImage(Product $product, $file): Product
+    {
         $product->file()->save($file);
         return $product;
     }
