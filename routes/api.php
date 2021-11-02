@@ -53,7 +53,7 @@ Route::get('/slides',[SlideController::class,'index']);
     // Products
     Route::get('/products',[ProductController::class,'index']);
     Route::post('/products',[ProductController::class,'create']);
-    Route::post('/products/{id}',[ProductController::class,'update']);
+    Route::put('/products/{id}',[ProductController::class,'update']);
     // Soft delete Product
     Route::delete('/products/{id}',[ProductController::class,'destroy']);
     Route::get('/products/trash',[ProductController::class,'trash']);
