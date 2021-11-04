@@ -59,10 +59,10 @@ class ProductController extends Controller
 
     public function create(UploadImageController $uploadImageController,ProductRequest $productRequest,ImageService $imageService)
     {
-        $data = $productRequest->validated();
-        $productInformation = Product::create($data);
+        $productInformation = Product::create($productRequest->validated());
         $file = $uploadImageController->store($productRequest->file('image'));
         $product = $imageService->attachImage($productInformation, $file);
+        
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 
