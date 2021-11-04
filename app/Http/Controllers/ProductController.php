@@ -53,6 +53,9 @@ class ProductController extends Controller
                 })
                 ->paginate(20);
 
+            if($products->total() == 0) {
+                return responder()->success()->respond('204');
+            }
             return responder()->success($products,ProductTransformer::class)->respond();
 
     }
@@ -73,16 +76,16 @@ class ProductController extends Controller
      */
     public function show($id): \Illuminate\Http\JsonResponse
     {
-        $product = Product::find($id);
+        $product = Product::findOrFail($id);
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 
-    /**
-     * @param ProductRequest $productRequest
-     * @param ImageService $imageService
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse
-     */
+//    /**
+//     * @param ProductRequest $productRequest
+//     * @param ImageService $imageService
+//     * @param $id
+//     * @return \Illuminate\Http\JsonResponse
+//     */
 
     public function update(UpdateProductRequest $updateProductRequest, ImageService $imageService,UploadImageController $uploadImageController,$id): \Illuminate\Http\JsonResponse
     {
