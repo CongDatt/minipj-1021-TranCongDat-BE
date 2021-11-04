@@ -34,7 +34,8 @@ class ImageService
     public function deleteImage($filePath)
     {
         if($filePath) {
-            Storage::disk('local')->delete($filePath);
+            Storage::disk('s3')->delete($filePath);
+            File::where('file_path', $filePath)->delete();
             return responder()->success(['message' => 'file deleted successfully']);
         }
         return responder()->error(['message' => 'File not found'])->respond(404);

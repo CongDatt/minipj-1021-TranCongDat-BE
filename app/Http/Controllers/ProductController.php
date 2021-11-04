@@ -86,8 +86,7 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $updateProductRequest, ImageService $imageService,UploadImageController $uploadImageController,$id): \Illuminate\Http\JsonResponse
     {
-        $data = $updateProductRequest->validated();
-        $productInformation = Product::find($id)->update($data);
+        $productInformation = Product::findOrFail($id)->update($updateProductRequest->validated());
 
         if($updateProductRequest->file('image')){
             $file = $uploadImageController->updateImage($updateProductRequest->file('image'), $id);
