@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Transformers\ProductTransformer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,8 @@ class Product extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    protected $table = 'products';
 
     protected $fillable = ['name', 'description','is_free_shipping','quantity','category_id','original_price',
         'is_gift','is_hot','discount','order_id'];
@@ -40,4 +43,5 @@ class Product extends Model
     {
         return $this->morphOne(File::class, 'fileable');
     }
+
 }

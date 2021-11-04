@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CreateProductAction;
 use App\Http\Requests\ProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use App\Models\Slide;
 use App\Transformers\LoginTransformer;
@@ -16,44 +18,51 @@ use Illuminate\Support\Facades\Storage;
 use http\Client\Response;
 use App\Models\File;
 use App\Services\ImageService;
+use App\Http\Controllers\UploadImageController;
 
 class ProductController extends Controller
 {
 
-    /**
-     * index(): show all product, search, sort product
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+//    /**
+//     * index(): show all product, search, sort product
+//     * @param Request $request
+//     * @return \Illuminate\Http\JsonResponse
+//     */
     public function index(Request $request)
     {
-            $query = Product::query();
+            $products = Product::query()
 
-            if($q = $request->input('q')) {
-                $products = Product::where("name","like","%".$q."%")
-                    ->orWhere("description","like","%".$q."%")->paginate(20);
-                if($products->count() == 0) {
-                    return responder()->error(['message' => 'Product not found'])->respond(404);
-                }
-                return responder()->success($products,ProductTransformer::class)->with('files')->respond();
-            }
-            else {
-                $products = Product::paginate(20);
-                return responder()->success($products,ProductTransformer::class)->respond();
-            }
+                ->when($request->has('q'), function ($query) use ($request) {
+                    $query->where("name","like","%".$request->q."%")
+                        ->Orwhere("description","like","%".$request->q."%");
+                })
+                ->when($request->has('discount'), function ($query) use ($request) {
+                    $query->where('discount','>', 0);
+                })
+                ->when($request->has('gift'), function ($query) use ($request) {
+                    $query->where('discount','>', 80);
+                })
+                ->when($request->has('hot'), function ($query) use ($request) {
+                    $query->where('is_hot',1);
+                })
+                ->when($request->has('free'), function ($query) use ($request) {
+                    $query->where('is_free_shipping',1);
+                })
+                ->when($request->has('sort'), function ($query) use ($request) {
+                    $query->orderBy('original_price',$request->sort);
+                })
+                ->paginate(20);
+
+            return responder()->success($products,ProductTransformer::class)->respond();
+
     }
 
-    public function create(ProductRequest $productRequest, ImageService $imageService)
+    public function create(UploadImageController $uploadImageController,ProductRequest $productRequest,ImageService $imageService)
     {
-        $validated = $productRequest->validated();
-        $product  = Product::create($validated);
-
-        if($productRequest->hasFile('image')) {
-            $file = $productRequest->file('image');
-            $fileUploaded = $imageService->UploadImage($file);
-            $fileAttached = $imageService->AttachImage($product, $fileUploaded);
-            return responder()->success($product,ProductTransformer::class)->respond();
-        }
+        $productInformation = Product::create($productRequest->validated());
+        $file = $uploadImageController->store($productRequest->file('image'));
+        $product = $imageService->attachImage($productInformation, $file);
+        
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 
@@ -75,18 +84,17 @@ class ProductController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function update(ProductRequest $productRequest, ImageService $imageService, $id): \Illuminate\Http\JsonResponse
+    public function update(UpdateProductRequest $updateProductRequest, ImageService $imageService,UploadImageController $uploadImageController,$id): \Illuminate\Http\JsonResponse
     {
-        $validated = $productRequest->validated();
-        $product = Product::find($id)->update($validated);
+        $productInformation = Product::findOrFail($id)->update($updateProductRequest->validated());
 
-        if($productRequest->hasFile('image')) {
-            $file = $productRequest->file('image');
-            $fileUploaded = $imageService->UploadImage($file);
-            $fileAttached = $imageService->AttachImage($product, $fileUploaded);
+        if($updateProductRequest->file('image')){
+            $file = $uploadImageController->updateImage($updateProductRequest->file('image'), $id);
+            $product = $imageService->attachImage(Product::find($id), $file);
             return responder()->success($product,ProductTransformer::class)->respond();
         }
-        return responder()->success($product,ProductTransformer::class)->respond();
+
+        return responder()->success(Product::find($id),ProductTransformer::class)->respond();
     }
 
     /**
@@ -98,17 +106,8 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         $product->delete();
-        return responder()->success(['message' => 'Product deleted successfully']);
-    }
 
-    /**
-     * trash(): get all deleted product
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function trash(): \Illuminate\Http\JsonResponse
-    {
-        $product = Product::onlyTrashed()->get();
-        return responder()->success($product,ProductTransformer::class)->respond();
+        return responder()->success(['message' => 'Product deleted successfully']);
     }
 
     /**
@@ -120,6 +119,7 @@ class ProductController extends Controller
     {
         $product = Product::withTrashed()->findOrFail($id);
         $product->restore();
+
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 
@@ -132,9 +132,11 @@ class ProductController extends Controller
     public function forceDelete(ImageService $imageService, $id): \Flugg\Responder\Http\Responses\SuccessResponseBuilder
     {
         $product = Product::withTrashed()->findOrFail($id);
-        $imageService->DeleteImage($product->file->file_path);
-        $imageService->DetachImage($product);
+
+        $imageService->deleteImage($product->file->file_path);
+        $product->file()->delete();
         $product->forceDelete();
+
         return responder()->success(['message' => 'Product destroyed successfully']);
     }
 }

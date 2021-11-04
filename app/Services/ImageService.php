@@ -12,34 +12,42 @@ use App\Models\File;
 
 class ImageService
 {
-    /**
-     * @param $file
-     * @return mixed
-     */
-    public function UploadImage($file){
-        $path = $file->store('images_dat','s3');
-        return File::create([
-            'file_name' => basename($path),
-            'file_path' => Storage::disk('s3')->url($path),
-            'disk' => 's3',
-            'file_size'=> $file->getSize(),
-        ]);
-    }
+//    /**
+//     * @param $file
+//     * @return mixed
+//     */
+//    public function uploadImage($file){
+//        $path = $file->store('images_dat');
+//        $file = File::create([
+//            'file_name' => basename($path),
+//            'file_path' => Storage::disk('s3')->url($path),
+//            'disk' => 's3',
+//            'file_size'=> $file->getSize(),
+//        ]);
+//        return null;
+//    }
 
-    public function DeleteImage($filePath)
+    /**
+     * @param $filePath
+     * @return \Flugg\Responder\Http\Responses\SuccessResponseBuilder|\Illuminate\Http\JsonResponse
+     */
+    public function deleteImage($filePath)
     {
         if($filePath) {
             Storage::disk('s3')->delete($filePath);
+            File::where('file_path', $filePath)->delete();
             return responder()->success(['message' => 'file deleted successfully']);
         }
         return responder()->error(['message' => 'File not found'])->respond(404);
     }
 
-    public function AttachImage(Product $product, $file) {
-        return $product->file()->save($file);
+    public function attachImage(Product $product, $file): Product
+    {
+        $product->file()->save($file);
+        return $product;
     }
 
-    public function DetachImage(Product $product) {
+    public function detachImage(Product $product) {
         return $product->file()->delete();
     }
 

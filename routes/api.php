@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SlideController;
+use App\Http\Controllers\UploadImageController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -58,5 +59,6 @@ Route::get('/slides',[SlideController::class,'index']);
     Route::get('/products/trash',[ProductController::class,'trash']);
     Route::post('/products/restore/{id}',[ProductController::class,'restore']);
     Route::post('/products/destroy/{id}',[ProductController::class,'forceDelete']);
+    Route::post('/upload',[UploadImageController::class,'store']);
 
 //});

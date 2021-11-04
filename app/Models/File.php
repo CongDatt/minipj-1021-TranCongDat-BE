@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Product;
 
 class File extends Model
 {
@@ -11,8 +12,9 @@ class File extends Model
 
     protected $fillable = ['file_name','file_path','disk','file_size','fileable_type','fileable_id'];
 
-    public function fileable(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    public function fileable()
     {
         return $this->morphTo();
     }
+
 }
