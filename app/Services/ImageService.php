@@ -47,9 +47,6 @@ class ImageService
         return $product;
     }
 
-    public function detachImage(Product $product) {
-        return $product->file()->delete();
-    }
 
 
 }

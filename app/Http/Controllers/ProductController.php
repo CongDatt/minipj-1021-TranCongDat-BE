@@ -62,7 +62,7 @@ class ProductController extends Controller
         $productInformation = Product::create($productRequest->validated());
         $file = $uploadImageController->store($productRequest->file('image'));
         $product = $imageService->attachImage($productInformation, $file);
-        
+
         return responder()->success($product,ProductTransformer::class)->respond();
     }
 
@@ -134,7 +134,6 @@ class ProductController extends Controller
         $product = Product::withTrashed()->findOrFail($id);
 
         $imageService->deleteImage($product->file->file_path);
-        $product->file()->delete();
         $product->forceDelete();
 
         return responder()->success(['message' => 'Product destroyed successfully']);
